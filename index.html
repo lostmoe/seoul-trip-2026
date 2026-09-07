@@ -318,43 +318,69 @@ const DAYS = [
     ]
   },
 
-  // ── Day 2（與原 D3 對調：超市採買移到週六）──
+  // ── Day 2（奉恩寺 → COEX → 蠶室：手信最後買）──
   {
-    id: 2, label: 'D2 9/12 六', date: '2026.09.12（六）蠶室樂天世界購物城・手信日',
-    title: '倫敦貝果 × 樂天世界購物城 × 超市採買', color: '#007aff',
+    id: 2, label: 'D2 9/12 六', date: '2026.09.12（六）奉恩寺 → COEX → 蠶室樂天世界購物城',
+    title: '奉恩寺 × COEX × 貝果・水族館・手信', color: '#007aff',
     locations: [
       {
-        name: '倫敦貝果博物館 蠶室店', lat: 37.5132, lng: 127.0994, type: 'food', time: '10:30',
-        desc: '樂天世界購物城 1F（近 14 號 Gate）；⭐ 09:30 先用 Catchtable App 遠端抽號',
-        budget: '₩15,000–25,000/人', detail: '乙支路4街 2 號線往建大方向 12 站直達 → 蠶室站\n週六是四天人潮最高峰：09:30 遠端抽號是關鍵\n賣完會提早打烊，別排太晚',
+        name: '奉恩寺 봉은사', lat: 37.5151, lng: 127.0568, type: 'spot', time: '09:30',
+        desc: '1,200 年古剎 × 江南高樓的經典對比；免費參觀（每日 05:00–22:00）',
+        detail: '大石彌勒佛＋大雄殿；早上人少涼爽，逛 50–60 分剛好無縫接 COEX 10:30 開門',
+        xhsKeyword: '首爾 奉恩寺',
+        metro: '① <span class="kw">을지로4가역</span> 2 號線，站到 <span class="kw">성수 방면</span> 那側（下一站是新堂就對了）\n② 搭 <span class="kw">15 站</span>不用換車（約 32 分）到 <span class="kw">삼성（三成）</span>：동대문역사문화공원 → 신당 → 상왕십리 → 왕십리 → 한양대 → 뚝섬 → 성수 → 건대입구 → 구의 → 강변 → 잠실나루 → 잠실 → 잠실새내 → 종합운동장 → 삼성\n③ <span class="kw">6번 출구</span> 出站直走約 8–10 分（跟「봉은사」指標）\n④ 不想坐 32 分地鐵：Uber <span class="kw">위코스테이 명동</span> → <span class="kw">봉은사</span>，約 25–35 分、₩14,000–17,000',
+        gmap: encodeURIComponent('봉은사 서울')
+      },
+      {
+        name: 'COEX 星空圖書館 별마당도서관', lat: 37.5102, lng: 127.0601, type: 'spot', time: '10:45',
+        desc: '從奉恩寺走回 COEX 剛好 10:30 開門；挑高書牆＋商場逛逛',
+        detail: '免費參觀；COEX Mall 10:30–22:00\n今天 COEX 段只逛圖書館＋吃午餐；水族館排在蠶室樂天那間（規模更大、有白鯨）',
+        xhsKeyword: '首爾 星空圖書館',
+        metro: '① 出奉恩寺往西南走，跟 <span class="kw">코엑스몰 COEX Mall</span> 指標從東側入口進地下商場（步行 10–12 分）\n② 跟 <span class="kw">별마당도서관</span> 指標走到商場中央的星空圖書館\n③ 午餐也在 COEX 商場內解決',
+        gmap: encodeURIComponent('별마당도서관 코엑스')
+      },
+      {
+        name: 'COEX 午餐', lat: 37.5097, lng: 127.0625, type: 'food', time: '12:00',
+        desc: 'COEX 商場美食街／餐廳群隨意挑一間',
+        detail: '⭐ 吃午餐時（約 12:30）順手開 Catchtable 幫倫敦貝果蠶室店遠端抽號，13:30 到蠶室剛好銜接',
+        pay: { cash: 1, card: 1 }, dianping: false,
+        metro: '【吃完去蠶室】① 回 <span class="kw">삼성역</span> 2 號線，站到<b>下一站是綜合運動場（종합운동장）</b>的那一側（往蠶室方向）\n② 搭 <span class="kw">3 站</span>：종합운동장 → 잠실새내 → <span class="kw">잠실</span>（約 6 分）\n③ 下車跟 <span class="kw">롯데월드몰</span> 指標走地下連通道直通商場 B1',
+        gmap: encodeURIComponent('코엑스몰 식당가 삼성역')
+      },
+      {
+        name: '倫敦貝果博物館 蠶室店', lat: 37.5132, lng: 127.0994, type: 'food', time: '13:45',
+        desc: '樂天世界購物城 1F（近 14 號 Gate）；等叫號時順便逛商場',
+        budget: '₩15,000–25,000/人', detail: '⭐ 12:30 在 COEX 午餐時就用 Catchtable 遠端抽號（週六下午現場隊伍長）\n賣完會提早收：叫號太晚或賣完 → 改排 포장（外帶）隊伍，或備案安國店（週日 07:00 開門）',
         pay: { card: 1, cash: 1 }, dianping: false,
         xhsKeyword: '倫敦貝果博物館 蠶室',
         reserve: 'https://app.catchtable.co.kr/ct/shop/london_bagel_museum_jamsil',
-        metro: '① <span class="kw">을지로4가역</span> 2 號線，站到 <span class="kw">성수 방면</span> 那側（下一站是新堂就對了）\n② 搭 <span class="kw">12 站</span>不用換車（約 27 分）：동대문역사문화공원 → 신당 → 상왕십리 → 왕십리 → 한양대 → 뚝섬 → 성수 → 건대입구 → 구의 → 강변 → 잠실나루 → <span class="kw">잠실</span>\n③ 下車後<b>不用出站</b>：跟 <span class="kw">롯데월드몰 Lotte World Mall</span> 指標走地下連通道（往 2 號線 1 號出口方向）\n④ 直達商場 B1，搭扶梯上 <span class="kw">1F</span>，找近 <span class="kw">14 號 Gate</span> 的倫敦貝果\n⑤ 09:30 就在 App 上遠端抽號（今天週六，現場隊伍最長）',
+        metro: '① 從蠶室站地下直通商場 B1，搭扶梯上 <span class="kw">1F</span>，找近 <span class="kw">14 號 Gate</span> 的倫敦貝果\n② 等叫號時逛商場；被叫號未到會跳過，注意 App 推播',
         gmap: encodeURIComponent('런던베이글뮤지엄 잠실 롯데월드몰')
       },
       {
-        name: '樂天世界購物城 × 石村湖', lat: 37.5110, lng: 127.1010, type: 'spot', time: '10:30',
-        desc: '逛街＋午餐＋候位貝果；商場旁石村湖順遊散步',
-        detail: '商場 10:30–22:00\n超市採買安排在 15:30（見下一張卡）',
-        metro: '① 貝果、逛街、午餐全在同一棟商場內，照樓層指示逛即可\n② 去石村湖：從商場 B1 東側出口（往樂天世界塔 LOTTE WORLD TOWER 方向）出來就是湖邊',
-        gmap: encodeURIComponent('롯데월드몰 Lotte World Mall')
+        name: '樂天世界水族館 롯데월드아쿠아리움', lat: 37.5137, lng: 127.1052, type: 'spot', time: '15:15',
+        desc: '樂天世界購物城 B1；白鯨＋企鵝，規模比 COEX 水族館大（週五–日 10:00–22:00、最後入場 21:00）',
+        budget: '成人 ₩31,000（線上預購約省 20%）', detail: '參觀約 90 分鐘\n看完直接下 B2 就是樂天超市——動線零浪費\n線上先買票（官網／Klook）比現場便宜',
+        pay: { card: 1 },
+        xhsKeyword: '首爾 樂天世界水族館',
+        metro: '① 從 1F 倫敦貝果往下一層到 <span class="kw">B1</span>，跟 <span class="kw">아쿠아리움 Aquarium</span> 指標走（同棟建築，不出商場）\n② 入場刷線上預購的 QR code',
+        gmap: encodeURIComponent('롯데월드아쿠아리움 잠실')
       },
       {
-        name: '樂天超市 世界塔店 롯데마트 월드타워점', lat: 37.5122, lng: 127.1008, type: 'spot', time: '15:30',
-        desc: '手信採買主力站！就在同棟商場 B2；今天週六營業 ✓',
-        budget: '₩30,000–80,000 視戰力', detail: '⚠️ 大超市每月第 2/4 個週日公休：9/13（日）全首爾樂天/Emart 都休 → 所以採買排今天（六）\n營業 10:30–22:00（週末）\n必掃：香蕉牛奶、蜂蜜杏仁、海苔禮盒、柚子茶、泡麵；Olive Young 商場內也有',
+        name: '樂天超市 世界塔店 롯데마트 월드타워점', lat: 37.5118, lng: 127.1013, type: 'spot', time: '16:45',
+        desc: '手信採買壓軸！水族館出來下 B2 就是；今天週六營業 ✓（10:30–22:00）',
+        budget: '₩30,000–80,000 視戰力', detail: '⚠️ 大超市每月第 2/4 個週日公休：9/13（日）全首爾樂天/Emart 都休 → 排今天最後一站，買完直接回酒店\n必掃：香蕉牛奶、蜂蜜杏仁、海苔禮盒、柚子茶、泡麵',
         pay: { card: 1, cash: 1 },
         xhsKeyword: '首爾 樂天超市 手信',
-        metro: '① 從商場 1F 搭扶梯下到 <span class="kw">B2</span> 就是樂天超市（同棟建築，不用出商場）\n② 退稅：單筆滿 ₩15,000 可退稅，結帳出示護照，離境時在機場退稅機處理\n③ 戰利品太重：商場有付費寄物櫃（<span class="kw">라커</span>）可先寄放',
+        metro: '① 水族館（B1）出來搭扶梯下到 <span class="kw">B2</span> 就是樂天超市，全程不出商場\n② 退稅：單筆滿 ₩15,000 結帳出示護照，離境時在機場退稅機處理',
         gmap: encodeURIComponent('롯데마트 월드타워점 잠실')
       },
       {
-        name: '蠶室商圈晚餐', lat: 37.5127, lng: 127.0982, type: 'food', time: '17:40',
-        desc: '樂天世界購物城美食街（B1 有鼎泰豐等）或石村湖周邊晚餐',
-        detail: '帶著戰利品回程建議直接叫車（₩15,000–20,000，25–35 分）\n地鐵版：蠶室 2 號線 12 站回乙支路4街（約 30 分）',
+        name: '蠶室晚餐 × 回酒店', lat: 37.5127, lng: 127.0982, type: 'food', time: '18:00',
+        desc: '樂天世界購物城美食街（B1 有鼎泰豐等）或石村湖周邊；吃完提戰利品回酒店',
+        detail: '石村湖就在商場旁，吃飽有力氣可繞湖 20 分再走\n明天（日）COEX 已經玩過，晚上完全自由：可留給明洞最後巡禮',
         pay: { cash: 1, card: 1 }, dianping: false,
-        metro: '【回酒店（帶戰利品）】① 首選叫車：上車貼 <span class="kw">롯데월드몰</span>、下車貼 <span class="kw">위코스테이 명동</span>（₩15,000–20,000）\n② 鐵人地鐵版：蠶室站 2 號線，站到<b>下一站是蠶室渡口（잠실나루）</b>的那一側，12 站到 을지로4가（約 30 分），出站走回酒店',
+        metro: '【回酒店（帶戰利品）】① 首選叫車：上車貼 <span class="kw">롯데월드몰</span>、下車貼 <span class="kw">위코스테이 명동</span>（₩15,000–20,000，25–35 分）\n② 鐵人地鐵版：蠶室站 2 號線，站到<b>下一站是蠶室渡口（잠실나루）</b>的那一側，12 站到 을지로4가（約 30 分）',
         gmap: encodeURIComponent('잠실 롯데월드몰 식당가')
       }
     ]
@@ -362,7 +388,7 @@ const DAYS = [
 
   // ── Day 3（與原 D2 對調：聖水日＋晚間彈性 COEX）──
   {
-    id: 3, label: 'D3 9/13 日', date: '2026.09.13（日）首爾林 → 聖水 → 建大（彈性 COEX）',
+    id: 3, label: 'D3 9/13 日', date: '2026.09.13（日）首爾林 → 聖水 → 建大',
     title: 'SM 周邊 × 東海・藝聲咖啡廳', color: '#af52de',
     locations: [
       {
@@ -409,20 +435,12 @@ const DAYS = [
       {
         name: '建大炭火富人肥腸 건대숯불부자곱창', lat: 37.5433, lng: 127.0687, type: 'food', time: '17:00',
         desc: '16:00 開店、必點炭火綜合牛腸／蒜頭牛小腸；Mouse Rabbit 步行 8–10 分',
-        budget: '₩22,000–28,000/人', detail: '每日 16:00–翌日 03:00（僅春節/中秋當日休）\n吃飽後兩條路：回家休息，或去 COEX 看夜間書牆（下一張卡）',
+        budget: '₩22,000–28,000/人', detail: '每日 16:00–翌日 03:00（僅春節/中秋當日休）\n吃飽後慢慢晃回家；明天上午退房，今晚想走走可留給明洞最後巡禮',
         pay: { cash: 1, card: 1 }, dianping: false,
         xhsKeyword: '建大 富人肥腸',
         reserve: 'https://app.catchtable.co.kr/ct/shop/geondaesuchbulbujagobchang',
         metro: '【去程】Mouse Rabbit 出來往西南走回建大入口站方向，約 8–10 分；直接 Naver Map 搜 <span class="kw">건대숯불부자곱창</span> 導航最省事\n【回酒店】① 走回 <span class="kw">건대입구역</span>，站到 <span class="kw">성수·시청 방면</span> 那側（下一站是聖水 성수 就對了）\n② 搭 8 站：성수 → 뚝섬 → 한양대 → 왕십리 → 상왕십리 → 신당 → 동대문역사문화공원 → <span class="kw">을지로4가</span>（約 20 分）\n③ 出站走回酒店。太累叫 Uber：<span class="kw">건대입구역</span> → <span class="kw">위코스테이 명동</span>（₩13,000–16,000）',
         gmap: encodeURIComponent('건대숯불부자곱창')
-      },
-      {
-        name: 'COEX 星空圖書館 별마당도서관', lat: 37.5102, lng: 127.0601, type: 'spot', time: '19:10',
-        desc: '彈性加場：晚餐後搭 2 號線 7 站看夜間燈光的挑高書牆；太累就跳過直接回家',
-        detail: '免費參觀；COEX Mall 10:30–22:00\n夜間的書牆打燈後最好拍\n看完直接叫車回酒店最省力',
-        xhsKeyword: '首爾 星空圖書館',
-        metro: '【從晚餐過去】① <span class="kw">건대입구역</span> 2 號線，站到<b>下一站是九宜（구의）</b>的那一側（往蠶室/江南方向）\n② 搭 <span class="kw">7 站</span>到 <span class="kw">삼성</span>（約 15 分）：구의 → 강변 → 잠실나루 → 잠실 → 잠실새내 → 종합운동장 → 삼성\n③ 下車跟 <span class="kw">코엑스 COEX</span> 指標走，5·6 號出口方向地下直通商場，再跟 <span class="kw">별마당도서관</span> 指標走到商場中央\n【回家】直接叫車：上車 <span class="kw">코엑스몰</span>、下車 <span class="kw">위코스테이 명동</span>（₩15,000–20,000）；地鐵要繞 15 站不建議',
-        gmap: encodeURIComponent('별마당도서관 코엑스')
       }
     ]
   },
