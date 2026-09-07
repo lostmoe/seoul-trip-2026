@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>首爾行程地圖 2026.09.11–14</title>
+<meta name="description" content="首爾 4 日行程互動地圖：景福宮韓服、新堂辣雞腳、KWANGYA、聖水洞、建大、蠶室貝果、COEX">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+/* ═══════════════════════════════════════════
+   Design System — edit :root to change theme
+   ═══════════════════════════════════════════ */
+:root {
+  --bg-primary:    #ffffff;
+  --bg-secondary:  #f5f5f7;
+  --bg-tertiary:   #fbfbfd;
+  --bg-grouped:    #f2f2f7;
+  --bg-elevated:   #ffffff;
+  --text-primary:   #1d1d1f;
+  --text-secondary: #86868b;
+  --text-tertiary:  #aeaeb2;
+  --accent:        #0071e3;
+  --accent-hover:  #0077ed;
+  --tint-red:    #ff3b30;
+  --tint-orange: #ff9500;
+  --tint-green:  #34c759;
+  --tint-blue:   #007aff;
+  --tint-purple: #af52de;
+  --tint-pink:   #ff2d55;
+  --separator:  rgba(60, 60, 67, .12);
+  --shadow-sm:  0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:  0 4px 14px rgba(0,0,0,.08);
+  --shadow-lg:  0 8px 30px rgba(0,0,0,.12);
+  --radius-sm:  8px;
+  --radius-md:  12px;
+  --radius-lg:  16px;
+  --radius-xl:  20px;
+  --safe-top:    env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+               "Helvetica Neue", "Arial", "Microsoft JhengHei", sans-serif;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.47059;
+  letter-spacing: -0.022em;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Map ── */
+#map { width: 100%; height: 40vh; min-height: 280px; position: sticky; top: 0; z-index: 100; }
+.locate-btn {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: rgba(255,255,255,.92); backdrop-filter: blur(8px);
+  border: none; box-shadow: 0 1px 4px rgba(0,0,0,.18);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.locate-btn.active { color: #007aff; }
+@keyframes loc-pulse {
+  0%   { transform: scale(1); opacity: .55; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+.loc-pulse {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: rgba(0,122,255,.25);
+  animation: loc-pulse 1.6s ease-out infinite;
+}
+
+/* ── Tabs ── */
+.tabs {
+  display: flex; gap: 6px; padding: 12px 16px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+  background: rgba(255,255,255,.85); -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px); position: sticky; top: 40vh; z-index: 99;
+  border-bottom: .5px solid var(--separator); scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  flex-shrink: 0; padding: 7px 16px; border-radius: 980px; border: none;
+  background: var(--bg-grouped); color: var(--text-secondary);
+  font-size: 14px; font-weight: 500; cursor: pointer; transition: all .25s ease;
+  white-space: nowrap; letter-spacing: -0.01em;
+}
+.tab:active { transform: scale(.96); }
+.tab.active { background: var(--accent); color: #fff; }
+
+/* ── Main content ── */
+.content { max-width: 680px; margin: 0 auto; padding: 16px 16px calc(24px + var(--safe-bottom)); }
+
+/* ── Overview ── */
+.hero { text-align: center; padding: 28px 20px 20px; }
+.hero h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.15; }
+.hero .subtitle { font-size: 17px; color: var(--text-secondary); margin-top: 6px; font-weight: 400; }
+
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.info-card { background: var(--bg-elevated); border-radius: var(--radius-lg); padding: 16px; box-shadow: var(--shadow-sm); }
+.info-card .label { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .02em; margin-bottom: 6px; }
+.info-card .value { font-size: 15px; font-weight: 600; line-height: 1.4; }
+
+/* ── Section headers ── */
+.section-head { font-size: 13px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .03em; padding: 20px 0 8px; }
+
+/* ── Day header ── */
+.day-head { padding: 20px 0 12px; }
+.day-head h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+.day-head p { font-size: 15px; color: var(--text-secondary); margin-top: 2px; }
+
+/* ── Route bar ── */
+.route-bar { background: var(--bg-elevated); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 14px; box-shadow: var(--shadow-sm); font-size: 13px; color: var(--text-secondary); line-height: 1.7; white-space: pre-line; }
+.route-bar strong { color: var(--text-primary); }
+
+/* ── Timeline ── */
+.timeline { position: relative; padding-left: 24px; }
+.timeline::before { content: ''; position: absolute; left: 7px; top: 20px; bottom: 20px; width: 1.5px; background: var(--separator); }
+.tl-item { position: relative; margin-bottom: 10px; }
+.tl-dot { position: absolute; left: -20px; top: 18px; width: 10px; height: 10px; border-radius: 50%; z-index: 1; box-shadow: 0 0 0 3px var(--bg-secondary); }
+.tl-dot.food    { background: var(--tint-red); }
+.tl-dot.spot    { background: var(--tint-blue); }
+.tl-dot.hotel   { background: var(--tint-orange); }
+.tl-dot.drink   { background: var(--tint-purple); }
+.tl-dot.transport { background: var(--text-tertiary); }
+
+/* ── Card ── */
+.card { background: var(--bg-elevated); border-radius: var(--radius-md); padding: 14px 16px; box-shadow: var(--shadow-sm); transition: box-shadow .25s ease; cursor: pointer; }
+.card:active { box-shadow: var(--shadow-md); }
+.card .time { font-size: 12px; font-weight: 600; color: var(--text-tertiary); letter-spacing: .01em; }
+.card .name { font-size: 17px; font-weight: 600; margin: 2px 0 4px; letter-spacing: -0.01em; display: flex; align-items: center; gap: 6px; }
+.card .desc { font-size: 14px; color: var(--text-secondary); line-height: 1.45; }
+
+/* Badge */
+.badge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 4px; }
+.badge.food   { background: rgba(255,59,48,.1);  color: var(--tint-red); }
+.badge.spot   { background: rgba(0,122,255,.1);  color: var(--tint-blue); }
+.badge.drink  { background: rgba(175,82,222,.1); color: var(--tint-purple); }
+
+/* Budget */
+.budget { display: inline-block; margin-top: 6px; padding: 3px 10px; background: var(--bg-grouped); border-radius: var(--radius-sm); font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+
+/* Payment */
+.pays { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+.pay { font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 600; }
+.pay.ok  { background: rgba(52,199,89,.1);  color: var(--tint-green); }
+.pay.no  { background: rgba(255,59,48,.08); color: var(--tint-red); }
+.pay.idk { background: rgba(255,149,0,.1);  color: var(--tint-orange); }
+
+/* Links row */
+.links { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 8px 14px; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 600; border: none; cursor: pointer;
+  text-decoration: none !important; transition: filter .2s;
+}
+.btn:active { filter: brightness(.9); }
+.btn.nav    { background: var(--accent); color: #fff; }
+.btn.metro  { background: #00c7be; color: #fff; }
+.btn.xhs    { background: #ff2442; color: #fff; }
+.btn.rsv    { background: var(--tint-green); color: #fff; }
+
+/* Action Sheet / Metro guide sheet */
+.as-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,.35); backdrop-filter: blur(2px);
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .25s;
+}
+.as-overlay.show { opacity: 1; pointer-events: auto; }
+.as-sheet {
+  width: 100%; max-width: 420px;
+  padding: 0 8px 34px;
+  transform: translateY(100%); transition: transform .3s cubic-bezier(.22,1,.36,1);
+}
+.as-overlay.show .as-sheet { transform: translateY(0); }
+.as-group {
+  background: rgba(255,255,255,.88); backdrop-filter: blur(20px);
+  border-radius: 14px; overflow: hidden; margin-bottom: 8px;
+}
+.as-group .as-item {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 16px; font-size: 18px; color: #007aff; font-weight: 500;
+  border: none; background: none; width: 100%; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.as-group .as-item + .as-item { border-top: .5px solid rgba(0,0,0,.12); }
+.as-group .as-item:active { background: rgba(0,0,0,.06); }
+.as-cancel { font-weight: 600; }
+
+/* Metro guide card (inside sheet) */
+.metro-card {
+  background: rgba(255,255,255,.94); backdrop-filter: blur(20px);
+  border-radius: 14px; padding: 18px 18px 14px; margin-bottom: 8px;
+  max-height: 68vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  font-size: 15px; line-height: 1.75; color: var(--text-primary);
+}
+.metro-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.01em; }
+.metro-card .step-num { display:inline-block; min-width:22px; height:22px; line-height:22px; text-align:center; background:#00c7be; color:#fff; border-radius:50%; font-size:13px; font-weight:700; margin-right:6px; }
+.metro-card .kw { background: #f2f2f7; padding: 1px 7px; border-radius: 5px; font-weight: 600; }
+.metro-tip { font-size: 12px; color: var(--text-secondary); margin-top: 14px; padding-top: 10px; border-top: .5px solid var(--separator); }
+
+/* Details — default open */
+.details {
+  margin-top: 10px; padding-top: 10px;
+  border-top: .5px solid var(--separator);
+  font-size: 13px; color: var(--text-secondary); line-height: 1.6;
+}
+.details.closed { display: none; }
+
+/* ── Overview day list ── */
+.day-list .card { margin-bottom: 8px; }
+.day-list .card .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+
+/* ── Payment summary ── */
+.pay-summary { background: var(--bg-elevated); border-radius: var(--radius-md); padding: 14px 16px; box-shadow: var(--shadow-sm); font-size: 13px; line-height: 1.7; margin-bottom: 10px; }
+.pay-summary h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.pay-summary .warn { color: var(--tint-red); }
+.pay-summary .ok-text { color: var(--tint-green); }
+.pay-summary b { font-weight: 700; }
+
+/* ── Legend ── */
+.legend { display: flex; gap: 14px; flex-wrap: wrap; padding: 8px 0; font-size: 12px; color: var(--text-secondary); }
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* ── Leaflet overrides ── */
+.leaflet-popup-content-wrapper { border-radius: var(--radius-md) !important; box-shadow: var(--shadow-lg) !important; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Microsoft JhengHei", sans-serif !important; }
+.leaflet-popup-content { font-size: 14px !important; line-height: 1.5 !important; margin: 12px 14px !important; }
+.leaflet-popup-content a { color: var(--accent) !important; }
+.leaflet-popup-tip { background: #fff !important; }
+.leaflet-control-zoom a { width: 34px !important; height: 34px !important; line-height: 34px !important; font-size: 16px !important; border-radius: 10px !important; background: rgba(255,255,255,.85) !important; -webkit-backdrop-filter: blur(10px) !important; backdrop-filter: blur(10px) !important; border: .5px solid var(--separator) !important; color: var(--text-primary) !important; }
+.leaflet-control-zoom { border-radius: 12px !important; overflow: hidden; box-shadow: var(--shadow-md) !important; border: none !important; }
+.leaflet-control-attribution { font-size: 9px !important; opacity: .5; }
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+<div class="tabs" id="tabs"></div>
+<div class="content" id="content"></div>
+
+<script>
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  HOTEL and Days data — Seoul 2026.09.11–14                  ║
+// ║  metro = 小白友善「怎麼去」教學（\n 換行，站數/方向/出口）   ║
+// ╚══════════════════════════════════════════════════════════════╝
+
+const HOTEL = { name: 'WECO STAY 明洞館 위코스테이 명동', lat: 37.5624, lng: 126.9985 };
+
+const DAYS = [
+  { id: 0, label: '總覽', color: '#0071e3', locations: [] },
+
+  // ── Day 1 ──
+  {
+    id: 1, label: 'D1 9/11 五', date: '2026.09.11（五）紅眼班機抵達日',
+    title: '景福宮韓服 × 新堂辣雞腳', color: '#ff9500',
+    locations: [
+      {
+        name: '仁川機場 T1', lat: 37.4602, lng: 126.7407, type: 'transport', time: '05:30',
+        desc: '通關、提行李後，T1 一樓戶外搭 6001 機場巴士（往동대문・용산方向）',
+        detail: '06:45 前後上車 → 約 70–80 分到忠武路站\n成人 ₩17,000（T-money／信用卡／現金皆可）\n約 15–25 分一班，清晨即有班次',
+        pay: { tmoney: 1, card: 1, cash: 1 },
+        metro: '① 提完行李出關，跟著「<span class="kw">버스 Bus</span>」指標走到 1 樓戶外巴士乘車區\n② 找 <span class="kw">6001</span> 路線牌；找不到就把這句給服務台看：<span class="kw">6001번 충무로역 가요?</span>\n③ 在票亭買票（₩17,000）或上車直接刷 T-money／信用卡\n④ 大行李交給司機放車廂側邊行李艙，找位子坐\n⑤ 車程約 70–80 分。開 Google Maps 定位看進度，快到時按一次下車鈴更保險\n⑥ 在「<span class="kw">충무로역 Chungmuro</span>」站下車 — 下車處就在 8 號出口前',
+        gmap: encodeURIComponent('인천국제공항 제1여객터미널')
+      },
+      {
+        name: 'WECO STAY 寄放行李', lat: 37.5624, lng: 126.9985, type: 'hotel', time: '08:45',
+        desc: '忠武路站下車（8 號出口方向），步行約 5 分；大廳免費寄放，附近簡單早餐',
+        metro: '① 下車後沿大馬路（退溪路）往南走一個街口\n② 右轉進小巷 <span class="kw">창경궁로1길（昌慶宮路1街）</span>\n③ 走到門牌 14 號就是 WECO STAY（全程約 5 分）\n④ 完全不想認路：開 Naver Map 搜 <span class="kw">위코스테이 명동</span> 直接導航',
+        gmap: encodeURIComponent('위코스테이 명동 서울')
+      },
+      {
+        name: '書和韓服 서화한복', lat: 37.5764, lng: 126.9731, type: 'spot', time: '09:30',
+        desc: '景福宮站 4 號出口步行 1 分鐘；09:00 開門，可提早到',
+        budget: '4 小時 ₩24,000/人 起', detail: '含簡單編髮與配件，需護照或押金\n從酒店：忠武路站 3 號線往구파발方向 3 站 → 景福宮站',
+        pay: { card: 1, cash: 1 },
+        xhsKeyword: '景福宮 韓服 推薦',
+        metro: '① 走回 <span class="kw">충무로역（忠武路站）</span>，跟著入口的「지하철 Subway」標誌下樓\n② 把 T-money 卡感應閘門上的圓圈，「嗶」一聲進站（不用買票）\n③ 跟橘色 <span class="kw">3호선 Line 3</span> 指標走到月台\n④ 月台有兩側，站到顯示 <span class="kw">구파발 방면</span>（往구파발方向）的那一側 — 螢幕上有「경복궁」就對了\n⑤ 搭 <span class="kw">3 站</span>：종로3가 → 안국 → <span class="kw">경복궁</span>（約 6 分）\n⑥ 下車跟 <span class="kw">4번 출구 Exit 4</span> 指標走，搭扶梯上地面\n⑦ 出口出來右前方 1 分鐘就是書和韓服；出站再嗶一次卡（扣 ₩1,550）',
+        gmap: encodeURIComponent('서화한복 사직로137 서울')
+      },
+      {
+        name: '景福宮 경복궁', lat: 37.5798, lng: 126.9767, type: 'spot', time: '11:00',
+        desc: '穿完整韓服免門票；每週二公休、17:00 最後入場（今天週五正常開放）',
+        detail: '主要逛勤政殿、慶會樓外圍\n10:00 / 14:00 光化門有守門將交接儀式',
+        xhsKeyword: '景福宮 韓服',
+        metro: '① 換好韓服後出店門右轉，沿著宮殿圍牆往南走（跟穿韓服的人潮走就對）\n② 約 5 分鐘到 <span class="kw">광화문（光化門）</span> 正門\n③ 穿韓服走專用通道直接進場，免門票免買票',
+        gmap: encodeURIComponent('경복궁 Gyeongbokgung Palace')
+      },
+      {
+        name: 'Ujeong 友情 우정', lat: 37.5632, lng: 127.0138, type: 'food', time: '14:00',
+        desc: '新堂炒年糕街的辣雞腳／辣炒年糕名店；新堂站 8 號出口步行 5–6 分',
+        budget: '₩13,000–16,000/人', detail: '地鐵：景福宮 3 號線 3 站 → 乙支路3街轉 2 號線 3 站 → 新堂\n太累直接叫車：서화한복 → 신당 떡볶이타운（₩9,000–12,000）\n14:00 避開正午排隊高峰 ✓',
+        pay: { cash: 1, card: 1 }, dianping: false,
+        xhsKeyword: '首爾 新堂 辣雞腳',
+        metro: '【地鐵版】\n① 回 <span class="kw">경복궁역</span> 搭 3 號線 <span class="kw">오금 방면</span>（往오금方向），3 站到 <span class="kw">을지로3가</span>\n② 下車跟綠色 <span class="kw">2호선 Line 2</span>＋「<span class="kw">환승 Transfer</span>」指標走（約 5 分，有扶梯）\n③ 2 號線月台站到 <span class="kw">성수 방면</span> 那側 — 螢幕上有「신당」就對了\n④ 搭 3 站：을지로4가 → 동대문역사문화공원 → <span class="kw">신당</span>\n⑤ <span class="kw">8번 출구</span> 出站，右轉沿退溪路往南，看到「떡볶이타운」招牌的小巷進去（共 5–6 分）\n全程約 30–35 分。\n【懶人版】叫 Uber：上車地點貼 <span class="kw">서화한복</span>、下車貼 <span class="kw">신당 떡볶이타운</span>，約 15 分 ₩9,000–12,000',
+        gmap: encodeURIComponent('우정 신당 떡볶이타운 서울')
+      },
+      {
+        name: 'WECO STAY 入住', lat: 37.5624, lng: 126.9985, type: 'hotel', time: '16:00',
+        desc: '新堂站 2 號線外線循環 2 站 → 乙支路4街站，正式 check-in 補眠到 18:00',
+        metro: '① 回 <span class="kw">신당역</span>（還是 2 號線，但換到對面月台）：站到 <span class="kw">시청 방면</span>（往市廳方向）— 下一站是 <span class="kw">동대문역사문화공원</span> 就對了\n② 搭 2 站：동대문역사문화공원 → <span class="kw">을지로4가</span>\n③ 出站走回酒店約 8–10 分（同一段路反著走）',
+        gmap: encodeURIComponent('위코스테이 명동 서울')
+      },
+      {
+        name: '明洞換錢 × 晚餐', lat: 37.5625, lng: 126.9870, type: 'spot', time: '18:00',
+        desc: '酒店步行 10–12 分到明洞換錢街（大使館換錢所一帶），換完順便小吃晚餐',
+        detail: '匯率比機場好，換隔天花費即可\n多數換錢所營業到晚上 20:00 前後',
+        pay: { cash: 1 },
+        metro: '① 建議直接走路去（10–12 分）：出酒店左轉往西，過明洞聖堂就到明洞商圈\n② 要搭車的話：忠武路站 4 號線 <span class="kw">당고개 방면</span> 1 站到 <span class="kw">명동역</span>，6 號出口出來就是換錢街\n③ 換錢所只收現金 — 台幣/港幣/美金直接換韓圜',
+        gmap: encodeURIComponent('대사관환전 명동')
+      }
+    ]
+  },
+
+  // ── Day 2 ──
+  {
+    id: 2, label: 'D2 9/12 六', date: '2026.09.12（六）首爾林 → 聖水 → 建大',
+    title: 'SM 周邊 × 東海・藝聲咖啡廳', color: '#af52de',
+    locations: [
+      {
+        name: '首爾林 서울숲', lat: 37.5436, lng: 127.0447, type: 'spot', time: '10:00',
+        desc: '公園外圍散步，順看 SM 新總部大樓外觀；下雨可直接略過',
+        detail: '交通：乙支路4街 2 號線往聖水方向 4 站 → 往十里站，\n轉水仁盆唐線（往수원方向）1 站 → 首爾林站',
+        metro: '① 從酒店走到 <span class="kw">을지로4가역</span>（8–10 分；認綠色 2 號線招牌）\n② 嗶卡進站，跟綠色 <span class="kw">2호선</span> 指標到月台\n③ 站到 <span class="kw">성수 방면</span> 那側 — 螢幕出現「왕십리」就對了\n④ 搭 4 站：동대문역사문화공원 → 신당 → 상왕십리 → <span class="kw">왕십리</span>\n⑤ 下車跟黃色 <span class="kw">수인분당선</span>＋「환승」指標走（3–5 分）\n⑥ 新月台站到 <span class="kw">수원 방면</span>（往수원/오리方向），搭 1 站到 <span class="kw">서울숲</span>\n⑦ <span class="kw">4번 출구</span> 出站就是公園入口\n全程約 25–30 分，車資 ₩1,550',
+        gmap: encodeURIComponent('서울숲 공원 Seoul Forest')
+      },
+      {
+        name: 'KWANGYA@SEOUL', lat: 37.5445, lng: 127.0439, type: 'spot', time: '10:30',
+        desc: '首爾林站 4 號出口直通 Acro Seoul Forest B1；SM 官方周邊旗艦店',
+        detail: '每日 10:30–20:00\n出站跟「D Museum」指標走即達\naespa／EXO／NCT／RIIZE 周邊與 POP-UP',
+        xhsKeyword: 'KWANGYA SEOUL 曠野',
+        metro: '① 公園散步完走回首爾林站 4 號出口方向\n② <b>不用出到地面！</b>站內跟 <span class="kw">D Museum</span> 黃色指標走地下通道\n③ 直接走進 Acro Seoul Forest 商場，下手扶梯到 <span class="kw">B1</span> 就是 KWANGYA',
+        gmap: encodeURIComponent('KWANGYA SEOUL 성수')
+      },
+      {
+        name: 'Haru Coffee House 東海咖啡廳', lat: 37.5452, lng: 127.0525, type: 'drink', time: '12:00',
+        desc: 'Super Junior 東海的咖啡廳（前身 haru&oneday 新址）；聖水站旁',
+        detail: 'KWANGYA 步行過去約 12–15 分，經過聖水咖啡街\n營業約 10:00–20:30',
+        pay: { card: 1, cash: 1 }, dianping: false,
+        xhsKeyword: '東海咖啡廳 하루 성수',
+        metro: '① 從 KWANGYA 出來往東北走（往 <span class="kw">성수역</span> 方向），沿著 서울숲길／성수이路 走\n② 約 12–15 分，過幾個路口就會看到（在聖水站正前方）\n③ 不想走：Naver Map 搜 <span class="kw">하루커피하우스</span> 或直接攔計程車（₩4,800–6,000）',
+        gmap: encodeURIComponent('하루커피하우스 성수')
+      },
+      {
+        name: '聖水洞文創街區午餐', lat: 37.5439, lng: 127.0533, type: 'food', time: '13:15',
+        desc: '連武場街（연무장길）一帶輕食簡餐＋特色小店逛街',
+        pay: { cash: 0.5, card: 1 }, dianping: false,
+        xhsKeyword: '首爾 聖水洞 咖啡街',
+        metro: '就在 Haru 咖啡廳周邊巷弄：往南往西隨便繞都是小店，不需要搭車',
+        gmap: encodeURIComponent('성수연무장길 서울')
+      },
+      {
+        name: 'Mouse Rabbit 藝聲咖啡廳', lat: 37.5420, lng: 127.0693, type: 'drink', time: '14:45',
+        desc: 'Yesung 與哥哥經營的歐風咖啡廳；建大入口站 3 號出口步行 2–3 分',
+        detail: '聖水站 2 號線往建大方向 1 站即達\n3 層樓＋露臺，約 12:00–23:00',
+        pay: { card: 1, cash: 1 }, dianping: false,
+        xhsKeyword: '藝聲咖啡廳 마우스래빗',
+        metro: '① 到 <span class="kw">성수역</span>（2 號線），月台站到 <span class="kw">건대입구 방면</span>（往建大/蠶室方向）— 螢幕上有「건대입구」就對了\n② 搭 <span class="kw">1 站</span> 到 <span class="kw">건대입구</span>（2 分）\n③ <span class="kw">3번 출구</span> 出站，出來直走約 200 公尺（往兒童大公園方向），3 層歐風建築就是\n④ 迷路就開 Naver Map 搜 <span class="kw">마우스래빗</span>',
+        gmap: encodeURIComponent('마우스래빗 건대입구')
+      },
+      {
+        name: '建大炭火富人肥腸 건대숯불부자곱창', lat: 37.5433, lng: 127.0687, type: 'food', time: '17:00',
+        desc: '16:00 開店、必點炭火綜合牛腸／蒜頭牛小腸；Mouse Rabbit 步行 8–10 分',
+        budget: '₩22,000–28,000/人', detail: '每日 16:00–翌日 03:00（僅春節/中秋當日休）\n回酒店：建大入口 2 號線外線循環 8 站 → 乙支路4街（約 20 分）',
+        pay: { cash: 1, card: 1 }, dianping: false,
+        xhsKeyword: '建大 富人肥腸',
+        reserve: 'https://app.catchtable.co.kr/ct/shop/geondaesuchbulbujagobchang',
+        metro: '【去程】Mouse Rabbit 出來往西南走回建大入口站方向，約 8–10 分；直接 Naver Map 搜 <span class="kw">건대숯불부자곱창</span> 導航最省事\n【回酒店】① 走回 <span class="kw">건대입구역</span>，站到 <span class="kw">성수·시청 방면</span> 那側（往성수方向）\n② 搭 8 站：성수 → 뚝섬 → 한양대 → 왕십리 → 상왕십리 → 신당 → 동대문역사문화공원 → <span class="kw">을지로4가</span>（約 20 分）\n③ 出站走回酒店。太累叫 Uber：<span class="kw">건대입구역</span> → <span class="kw">위코스테이 명동</span>（₩13,000–16,000）',
+        gmap: encodeURIComponent('건대숯불부자곱창')
+      }
+    ]
+  },
+
+  // ── Day 3 ──
+  {
+    id: 3, label: 'D3 9/13 日', date: '2026.09.13（日）蠶室 → 三成（彈性）',
+    title: '倫敦貝果 × 樂天世界購物城 × COEX', color: '#007aff',
+    locations: [
+      {
+        name: '倫敦貝果博物館 蠶室店', lat: 37.5132, lng: 127.0994, type: 'food', time: '10:30',
+        desc: '樂天世界購物城 1F（近 14 號 Gate）；⭐ 09:30 先用 Catchtable App 遠端抽號',
+        budget: '₩15,000–25,000/人', detail: '乙支路4街 2 號線往建大方向 12 站直達 → 蠶室站\n（2 號線 1 號出口／8 號線 11 號出口地下直通商場）\n週日現場等候常 1–2 小時，遠端排隊是關鍵',
+        pay: { card: 1, cash: 1 }, dianping: false,
+        xhsKeyword: '倫敦貝果博物館 蠶室',
+        reserve: 'https://app.catchtable.co.kr/ct/shop/london_bagel_museum_jamsil',
+        metro: '① <span class="kw">을지로4가역</span> 2 號線，站到 <span class="kw">성수 방면</span> 那側\n② 搭 <span class="kw">12 站</span>一路不用換車（約 27 分）：동대문역사문화공원 → 신당 → 상왕십리 → 왕십리 → 한양대 → 뚝섬 → 성수 → 건대입구 → 구의 → 강변 → 잠실나루 → <span class="kw">잠실</span>\n③ 下車後<b>不用出站</b>：跟 <span class="kw">롯데월드몰 Lotte World Mall</span> 指標走地下連通道（往 2 號線 1 號出口方向）\n④ 直達商場 B1，搭扶梯上 <span class="kw">1F</span>，找近 <span class="kw">14 號 Gate</span> 的倫敦貝果\n⑤ 上車前 09:30 先開 Catchtable App 遠端抽號，到了剛好叫到你',
+        gmap: encodeURIComponent('런던베이글뮤지엄 잠실 롯데월드몰')
+      },
+      {
+        name: '樂天世界購物城 × 石村湖', lat: 37.5110, lng: 127.1010, type: 'spot', time: '10:30',
+        desc: '逛街＋午餐＋候位貝果；商場旁石村湖順遊散步',
+        detail: '⚠️ 樂天超市每月第 2/4 個週日公休 — 9/13 正好公休，超市採買勿排今天\n商場 10:30–22:00',
+        metro: '① 貝果、逛街、午餐全在同一棟商場內，照樓層指示逛即可\n② 去石村湖：從商場 B1 東側出口（往樂天世界塔 LOTTE WORLD TOWER 方向）出來就是湖邊',
+        gmap: encodeURIComponent('롯데월드몰 Lotte World Mall')
+      },
+      {
+        name: 'COEX 星空圖書館 별마당도서관', lat: 37.5102, lng: 127.0601, type: 'spot', time: '16:10',
+        desc: '三成站 5/6 號出口地下直通；蠶室過來 2 號線 3 站；彈性景點，太累可取消',
+        detail: '免費參觀，挑高書牆打卡約 1–1.5 小時\nCOEX Mall 10:30–22:00',
+        xhsKeyword: '首爾 星空圖書館',
+        metro: '① 回 <span class="kw">잠실역</span> 2 號線，這次站到 <span class="kw">강남 방면</span>（往江南方向）— 螢幕出現「잠실새내」就對了\n② 搭 3 站：잠실새내 → 종합운동장 → <span class="kw">삼성</span>（約 6 分）\n③ 下車跟 <span class="kw">코엑스 COEX</span> 指標走，往 <span class="kw">5·6번 출구</span> 方向的地下連通道直通商場\n④ 進 COEX Mall 後跟 <span class="kw">별마당도서관</span> 指標走（商場中央）',
+        gmap: encodeURIComponent('별마당도서관 코엑스')
+      },
+      {
+        name: 'COEX 商圈晚餐', lat: 37.5095, lng: 127.0615, type: 'food', time: '17:40',
+        desc: 'COEX 商場內或三成站周邊晚餐',
+        detail: '回程建議直接叫車（地鐵繞環線 15 站）：\nUber：코엑스몰 → 위코스테이 명동（₩15,000–20,000）',
+        pay: { cash: 1, card: 1 }, dianping: false,
+        metro: '【回酒店 — 建議直接叫車】① 在商場內叫 Uber／Kakao T：上車貼 <span class="kw">코엑스몰</span>、下車貼 <span class="kw">위코스테이 명동</span>\n② 車程 25–35 分、₩15,000–20,000（比地鐵繞 15 站舒服太多）\n【鐵人地鐵版】三成站 2 號線 <span class="kw">성수 방면</span>… 等等，是反方向：站到 <span class="kw">성수·시청 방면</span>（往蠶室/聖水/市廳方向），搭 15 站到 을지로4가（約 35 分）',
+        gmap: encodeURIComponent('코엑스몰 식당가 삼성역')
+      }
+    ]
+  },
+
+  // ── Day 4 ──
+  {
+    id: 4, label: 'D4 9/14 一', date: '2026.09.14（一）返程',
+    title: '退房 ✈ 仁川機場', color: '#8e8e93',
+    locations: [
+      {
+        name: 'WECO STAY 退房', lat: 37.5624, lng: 126.9985, type: 'hotel', time: '08:30',
+        desc: '早餐吃前一天外帶的貝果；護照、退稅單、充電器備齊',
+        metro: '無需移動 — 在酒店內完成退房與行李打包',
+        gmap: encodeURIComponent('위코스테이 명동 서울')
+      },
+      {
+        name: '忠武路站 6001 巴士站', lat: 37.5611, lng: 126.9932, type: 'transport', time: '09:00',
+        desc: '酒店步行約 5 分（忠武路站 8 號出口前）；搭 6001 直達仁川機場',
+        detail: '★ 不要等 6015 — 它不停忠武路（最近站是明洞世宗飯店）\n約 15–25 分一班、₩17,000\n09:00 上車 → 約 10:15–10:25 抵 T1',
+        pay: { tmoney: 1, card: 1, cash: 1 },
+        metro: '① 出酒店沿原路往北走 5 分到忠武路站前\n② 巴士站在 <span class="kw">8 號出口前（銀行門口一帶）</span>，認 6001 路線牌（<span class="kw">인천공항 방면</span> 往機場方向）\n③ 不確定站牌位置，出發前一晚請櫃檯畫給你看最保險\n④ 上車刷 T-money／信用卡，行李交司機放行李艙',
+        gmap: encodeURIComponent('충무로역 서울')
+      },
+      {
+        name: '仁川機場 T1', lat: 37.4602, lng: 126.7407, type: 'transport', time: '10:30',
+        desc: '報到、托運、退稅、安檢；預留 3 小時+，14:15 起飛 ✈',
+        metro: '① 6001 在 T1 大門下車，跟「Departures 出境」指標進航廈\n② 流程：航空公司櫃檯報到托運 →（有退稅單先到退稅機/海關）→ 安檢 → 出境審查 → 登機門\n③ 約 10:20 抵達、14:15 起飛 — 時間非常充裕，可慢慢逛免稅店',
+        gmap: encodeURIComponent('인천국제공항 제1여객터미널')
+      }
+    ]
+  }
+];
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  Overview tab content                                        ║
+// ╚══════════════════════════════════════════════════════════════╝
+
+function overviewContent() {
+  return `
+<div class="hero"><h1>首爾 4 日行程地圖</h1><p class="subtitle">2026.09.11（五）– 09.14（一）・宿明洞忠武路</p></div>
+<div class="info-grid">
+  <div class="info-card"><div class="label">酒店</div><div class="value">WECO STAY 明洞館<br>忠武路站 8 號出口步行 5 分</div></div>
+  <div class="info-card"><div class="label">航班</div><div class="value">9/11 05:30 抵 T1<br>9/14 14:15 T1 起飛</div></div>
+  <div class="info-card"><div class="label">交通卡</div><div class="value">T-money<br>地鐵 ₩1,550 起／程</div></div>
+  <div class="info-card"><div class="label">交通預估</div><div class="value">6001 巴士來回 ₩34,000<br>地鐵 4 天約 ₩10,000/人</div></div>
+</div>
+<div class="section-head">🚇 地鐵小白 60 秒上手（每個地點的卡片都有「🚇 怎麼去」按鈕）</div>
+<div class="pay-summary"><h4>① 卡怎麼來</h4>機場到達大廳的便利商店（CU/GS25）跟店員說 <b>「T-money card 주세요」</b>買一張空卡，請他幫你加值（<b>충전해 주세요</b>），先加 ₩20,000 就夠三天。</div>
+<div class="pay-summary"><h4>② 進出站</h4>卡片放在閘門的圓形感應區「嗶」一聲就進站；出站再嗶一次自動扣錢。<span class="warn">不用每次買票</span>。餘額在便利店或站內加值機都能儲。</div>
+<div class="pay-summary"><h4>③ 怎麼找月台</h4>記顏色：<b>2 號線＝綠色（你最常用）</b>、3 號線＝橘色、4 號線＝藍色、水仁盆唐線＝黃色。跟著牆上的彩色線條＋數字走就到月台。</div>
+<div class="pay-summary"><h4>④ 怎麼選方向（最重要）</h4>月台兩側都能搭，看頭頂螢幕的「<b>○○ 방면</b>」＝往○○方向。看不懂就對照<b>下一站站名</b>：螢幕路線圖上目的地旁邊那一站，和本教學每張卡寫的「下一站是○○就對了」比對。搭錯方向別慌，下一站下車換對面月台就好，不扣兩次錢。</div>
+<div class="pay-summary"><h4>⑤ 怎麼知道要下車</h4>車廂門上方有螢幕顯示路線圖，<b>韓英中日四語報站</b>。快到站時螢幕會閃、廣播會念中文站名。</div>
+<div class="pay-summary"><h4>⑥ 轉乘與出站</h4>轉乘跟「<b>환승 Transfer</b>」＋彩色線條指標走（3–6 分鐘，出站前轉乘不另外扣錢）。出站前先確認<b>出口號碼（○번 출구）</b>，Naver/Google Map 都會告訴你幾號出口。</div>
+<div class="pay-summary"><h4>⑦ 迷路急救</h4>把要去的<b>韓文站名</b>截圖，拿給任何站務員或路人看；或開 Naver Map 搜韓文店名。首爾地鐵超密集，走錯通常下一站就能救回來。</div>
+<div class="section-head">行程概覽</div>
+<div class="day-list">${DAYS.slice(1).map(d=>`<div class="card" onclick="go(${d.id})"><div class="name"><span class="dot" style="background:${d.color}"></span>${d.label} · ${d.title}</div><div class="desc">${d.date}</div></div>`).join('')}</div>
+<div class="section-head">支付提醒</div>
+<div class="pay-summary"><h4>🚇 T-money 卡</h4>機場到達大廳便利商店（CU/GS25）購卡加值。地鐵、巴士、便利店通用；6001 機場巴士也可刷信用卡或付現。<span class="ok-text">地鐵卡價 ₩1,550、現金 ₩1,650（10km 內）</span>。</div>
+<div class="pay-summary"><h4>💱 換錢</h4>9/11（五）晚上在明洞換錢街換即可，匯率比機場好；換錢所多營業至 20:00 前後，<span class="warn">只收現金</span>（用台幣/港幣/美金換韓圜）。</div>
+<div class="pay-summary"><h4>💳 刷卡</h4>大型店、百貨、連鎖店刷 Visa/Master 通行；小店與部分小吃攤<span class="warn">備現金較穩</span>。App 叫車（Uber/Kakao T）綁卡即可。</div>
+<div class="pay-summary"><h4>⚠️ 休市提醒</h4><span class="warn">9/13（日）是 9 月第 2 個週日，蠶室樂天超市公休</span>，伴手禮採買請排在其他天或機場。</div>
+<div class="section-head">圖例</div>
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--tint-red)"></div>餐廳</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--tint-blue)"></div>景點</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--tint-purple)"></div>咖啡廳</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--tint-orange)"></div>酒店</div>
+</div>`;
+}
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  ENGINE — Korea-localized: Naver Map navigation,             ║
+// ║  T-money pay chips, Traditional Chinese UI, metro guides    ║
+// ╚══════════════════════════════════════════════════════════════╝
+
+const map = L.map('map', { center: [HOTEL.lat || 37.56, HOTEL.lng || 126.99], zoom: 12, zoomControl: false, attributionControl: true });
+L.control.zoom({ position: 'topright' }).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
+
+/* ── Geolocation ── */
+const LocateControl = L.Control.extend({
+  options: { position: 'bottomright' },
+  onAdd() {
+    const btn = L.DomUtil.create('button', 'locate-btn');
+    btn.innerHTML = '📍';
+    btn.title = '我的位置';
+    L.DomEvent.disableClickPropagation(btn);
+    btn.addEventListener('click', () => {
+      btn.classList.add('active');
+      map.locate({ setView: true, maxZoom: 15 });
+    });
+    this._btn = btn;
+    return btn;
+  }
+});
+new LocateControl().addTo(map);
+let locMarker, locCircle;
+map.on('locationfound', e => {
+  const r = e.accuracy / 2;
+  if (locMarker) { locMarker.setLatLng(e.latlng); locCircle.setLatLng(e.latlng).setRadius(r); }
+  else {
+    locMarker = L.marker(e.latlng, {
+      icon: L.divIcon({ className:'', html:'<div style="width:14px;height:14px;border-radius:50%;background:#007aff;border:2.5px solid #fff;box-shadow:0 0 6px rgba(0,122,255,.5)"></div><div class="loc-pulse" style="position:absolute;top:0;left:0"></div>', iconSize:[14,14], iconAnchor:[7,7] }),
+      zIndexOffset: 2000
+    }).addTo(map);
+    locCircle = L.circle(e.latlng, { radius: r, color: '#007aff', fillColor: '#007aff', fillOpacity: .08, weight: 1 }).addTo(map);
+  }
+});
+map.on('locationerror', () => {});
+
+function icon(color, emoji) {
+  return L.divIcon({ className: '', html: `<div style="width:28px;height:28px;border-radius:50%;background:${color};border:2.5px solid #fff;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,.18)">${emoji||''}</div>`, iconSize: [28,28], iconAnchor: [14,14], popupAnchor: [0,-16] });
+}
+
+if (HOTEL.lat) L.marker([HOTEL.lat, HOTEL.lng], { icon: icon('#ff9500','🏨'), zIndexOffset: 1000 }).addTo(map).bindPopup(`<b>${HOTEL.name}</b>`);
+
+let markers = [], polylines = [];
+const emojis = { food:'🍽️', spot:'📍', hotel:'🏨', transport:'🚃', drink:'☕' };
+
+function clearMap() { markers.forEach(m=>map.removeLayer(m)); polylines.forEach(p=>map.removeLayer(p)); markers=[]; polylines=[]; }
+
+function showDay(idx) {
+  clearMap();
+  if (idx === 0) {
+    const pts = [[HOTEL.lat, HOTEL.lng]];
+    DAYS.forEach(d => d.locations.forEach(l => { if(l.lat) pts.push([l.lat,l.lng]); }));
+    if(pts.length) map.fitBounds(pts, {padding:[30,30]});
+    DAYS.slice(1).forEach(d => {
+      d.locations.filter(l=>l.time!=='—').forEach(l => {
+        const m = L.circleMarker([l.lat,l.lng], { radius:4, fillColor:d.color, color:'#fff', weight:1.5, fillOpacity:.9 }).addTo(map).bindPopup(`<b>${l.name}</b><br><span style="color:#86868b">${d.label}</span>`);
+        markers.push(m);
+      });
+    });
+    return;
+  }
+  const day = DAYS.find(d=>d.id===idx);
+  if(!day) return;
+  const coords = [];
+  day.locations.forEach(l => {
+    if(!l.lat) return;
+    const m = L.marker([l.lat,l.lng], { icon: icon(day.color, emojis[l.type]||'📌') }).addTo(map);
+    const gmapQ = l.gmap||encodeURIComponent(l.name+' Seoul');
+    m.bindPopup(`<b>${l.name}</b>${l.time!=='—'?'<br><span style="color:#86868b">'+l.time+'</span>':''}<br>${l.desc}${l.budget?'<br><span style="color:#ff9500">'+l.budget+'</span>':''}<br><a href="#" onclick="event.preventDefault();openAS('${l.name.replace(/'/g,"\\'")}',${l.lat},${l.lng},'${gmapQ}')">📍 導航</a>`);
+    markers.push(m);
+    if(l.time!=='—') coords.push([l.lat,l.lng]);
+  });
+  if(coords.length>1) { const pl = L.polyline(coords, { color:day.color, weight:2.5, opacity:.5, dashArray:'6,5' }).addTo(map); polylines.push(pl); }
+  if(coords.length) map.fitBounds(coords, { padding:[40,40], maxZoom:14 });
+}
+
+// ══════════ RENDER ══════════
+function payChips(pay) {
+  if(!pay) return '';
+  let h = '<div class="pays">';
+  const m = { cash:'💴 現金', card:'💳 信用卡', tmoney:'🚇 T-money' };
+  for(const [k,label] of Object.entries(m)) {
+    if(pay[k]!==undefined) { const c = pay[k]===1?'ok':pay[k]===0.5?'idk':'no'; h += `<span class="pay ${c}">${label}</span>`; }
+  }
+  return h+'</div>';
+}
+
+// ── 運行環境檢測：在第三方 App 的 WebView 裡，自定義 scheme 基本會被攔截 ──
+const IN_APP_WEBVIEW = (() => {
+  const ua = (navigator.userAgent || '').toLowerCase();
+  return /micromessenger|xhs|xhsdiscover|discover\/|tiktok|aweme|weibo|qq\/|qqbrowser|alipayclient|dingtalk|lark|feishu|ucbrowser|baiduboxapp|toutiao|newsarticle/.test(ua);
+})();
+
+function xhsKeyword(loc) {
+  if(loc.xhsKeyword) return loc.xhsKeyword.trim();
+  return (loc.name||'').replace(/⭐.*$/g,'').replace(/（.*?）/g,'').replace(/\(.*?\)/g,'').replace(/\s+/g,' ').trim();
+}
+function xhsAppUrl(loc) { return `xhsdiscover://search/result?keyword=${encodeURIComponent(xhsKeyword(loc))}&target_search=notes&source=deeplink`; }
+function xhsWebUrl(loc) { return `https://www.xiaohongshu.com/search_result?keyword=${encodeURIComponent(xhsKeyword(loc))}&source=web_explore_feed`; }
+
+window._extLocs = {};
+window._metroRefs = {};
+DAYS.forEach(d => d.locations.forEach((l,i) => {
+  window._extLocs[`${d.id}::${l.name}`] = l;
+  if(l.metro) window._metroRefs[`${d.id}-${i}`] = { name: l.name, metro: l.metro };
+}));
+window._xhsLocs = window._extLocs;
+
+function openExt(key, kind) {
+  const loc = window._extLocs[key]; if(!loc) return false;
+  if (IN_APP_WEBVIEW) {
+    window.location.href = xhsWebUrl(loc);
+  } else {
+    window.location.href = xhsAppUrl(loc);
+  }
+  return false;
+}
+function openXhs(key) { return openExt(key, 'xhs'); }
+
+function locCard(loc, dayIdx, i) {
+  const dot = loc.type==='food'?'food':loc.type==='spot'?'spot':loc.type==='drink'?'drink':loc.type==='hotel'?'hotel':'transport';
+  const bdg = loc.type==='food'?'<span class="badge food">餐</span>':loc.type==='spot'?'<span class="badge spot">景</span>':loc.type==='drink'?'<span class="badge drink">飲</span>':'';
+  const uid = `d${dayIdx}-${i}`;
+  const locKey = `${dayIdx}::${loc.name}`;
+  const gmapQ = loc.gmap||encodeURIComponent(loc.name+' Seoul');
+  let lnk = '';
+  if(loc.metro) lnk += `<button class="btn metro" onclick="openMetro('${dayIdx}-${i}')">🚇 怎麼去</button>`;
+  lnk += `<button class="btn nav" onclick="openAS('${loc.name.replace(/'/g,"\\'")}',${loc.lat},${loc.lng},'${gmapQ}')">📍 導航</button>`;
+  if(loc.xhs||loc.xhsKeyword) {
+    const xhsHref = IN_APP_WEBVIEW ? xhsWebUrl(loc) : xhsAppUrl(loc);
+    const xhsLabel = IN_APP_WEBVIEW ? '📕 小紅書' : '📕 小紅書 App';
+    lnk += `<a href="${xhsHref}" onclick="return openXhs('${locKey.replace(/'/g,"\\'")}')" class="btn xhs">${xhsLabel}</a>`;
+  }
+  if(loc.reserve) lnk += `<a href="${loc.reserve}" target="_blank" class="btn rsv">📅 預約／排隊</a>`;
+  return `<div class="tl-item"><div class="tl-dot ${dot}"></div><div class="card" onclick="if(!event.target.closest('.btn,.links'))toggle('${uid}')"><div class="time">${loc.time!=='—'?loc.time:'備選'}</div><div class="name">${bdg} ${loc.name}</div><div class="desc">${loc.desc}</div>${loc.budget?'<div class="budget">'+loc.budget+'</div>':''}${payChips(loc.pay)}<div class="links">${lnk}</div>${loc.detail?'<div class="details" id="'+uid+'">'+loc.detail.replace(/\n/g,'<br>')+'</div>':''}</div></div>`;
+}
+
+function renderDay(idx) {
+  const d = DAYS.find(x=>x.id===idx); if(!d) return '';
+  const main = d.locations.filter(l=>l.time!=='—');
+  const alt = d.locations.filter(l=>l.time==='—');
+  let h = `<div class="day-head"><h2>${d.title}</h2><p>${d.date}</p></div>`;
+  if(main.length) { h += '<div class="section-head">行程</div><div class="timeline">'; main.forEach((l,i) => h += locCard(l, idx, i)); h += '</div>'; }
+  if(alt.length) { h += '<div class="section-head">備選</div><div class="timeline">'; alt.forEach((l,i) => h += locCard(l, idx, 'a'+i)); h += '</div>'; }
+  return h;
+}
+
+// ══════════ NAV ══════════
+let cur = 0;
+const tabsEl = document.getElementById('tabs');
+const contentEl = document.getElementById('content');
+
+DAYS.forEach(d => {
+  const btn = document.createElement('button');
+  btn.className = 'tab' + (d.id===0?' active':'');
+  btn.dataset.day = d.id;
+  btn.textContent = d.label;
+  tabsEl.appendChild(btn);
+});
+
+function go(idx) {
+  cur = idx;
+  tabsEl.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', +t.dataset.day===idx));
+  contentEl.innerHTML = idx===0 ? overviewContent() : renderDay(idx);
+  showDay(idx);
+  contentEl.scrollTo({top:0});
+  const tab = tabsEl.querySelector(`[data-day="${idx}"]`);
+  if(tab) tab.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+}
+
+function toggle(id) { const el=document.getElementById(id); if(el) el.classList.toggle('closed'); }
+
+tabsEl.addEventListener('click', e => { const t=e.target.closest('.tab'); if(t) go(+t.dataset.day); });
+
+go(0);
+
+/* ── Metro guide bottom sheet（怎麼去教學） ── */
+const metroOverlay = document.createElement('div');
+metroOverlay.className = 'as-overlay';
+metroOverlay.innerHTML = `<div class="as-sheet">
+  <div class="metro-card" id="metro-body"></div>
+  <div class="as-group"><button class="as-item as-cancel" onclick="closeMetro()">關閉</button></div>
+</div>`;
+document.body.appendChild(metroOverlay);
+metroOverlay.addEventListener('click', e => { if (e.target === metroOverlay) closeMetro(); });
+
+function openMetro(key) {
+  const r = window._metroRefs[key]; if(!r) return;
+  document.getElementById('metro-body').innerHTML =
+    `<h3>🚇 怎麼去：${r.name}</h3><div>${r.metro.replace(/\n/g,'<br>')}</div>` +
+    `<p class="metro-tip">💡 迷路急救：開 Naver Map 搜韓文店名，或把站名截圖給站務員看。搭錯方向就下一站下車換對面月台，不會多扣錢。</p>`;
+  metroOverlay.classList.add('show');
+}
+function closeMetro() { metroOverlay.classList.remove('show'); }
+
+/* ── Action Sheet for Navigation（韓國版：Naver Map） ── */
+const asOverlay = document.createElement('div');
+asOverlay.className = 'as-overlay';
+asOverlay.innerHTML = `<div class="as-sheet">
+  <div class="as-group" id="as-opts"></div>
+  <div class="as-group"><button class="as-item as-cancel" onclick="closeAS()">取消</button></div>
+</div>`;
+document.body.appendChild(asOverlay);
+asOverlay.addEventListener('click', e => { if (e.target === asOverlay) closeAS(); });
+
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+function naverAppUrl(name, lat, lng) {
+  return `nmap://place?lat=${lat}&lng=${lng}&name=${encodeURIComponent(name)}&appname=seoul-trip`;
+}
+function naverWebUrl(name) {
+  return `https://map.naver.com/p/search/${encodeURIComponent(name)}`;
+}
+function openNaver(name, lat, lng) {
+  if (IN_APP_WEBVIEW) { window.open(naverWebUrl(name)); return; }
+  const t0 = Date.now();
+  window.location.href = naverAppUrl(name, lat, lng);
+  // 若手機沒裝 Naver Map App，1.2 秒後頁面仍在前景就 fallback 到網頁版
+  setTimeout(() => { if (!document.hidden && Date.now() - t0 < 2500) window.open(naverWebUrl(name)); }, 1200);
+}
+
+function openAS(name, lat, lng, gmap) {
+  const q = gmap || encodeURIComponent(name + ' Seoul');
+  const encName = encodeURIComponent(name);
+  const safeName = name.replace(/'/g,"\\'");
+  // WebView 內 maps:// 通常被攔截，改用 https Apple Maps URL —— iOS 系統會自動拉起 Apple Maps
+  const appleUrl = IN_APP_WEBVIEW
+    ? `https://maps.apple.com/?q=${lat},${lng}&ll=${lat},${lng}&name=${encName}`
+    : `maps://maps.apple.com/?q=${lat},${lng}&name=${encName}`;
+  const googleUrl = `https://www.google.com/maps/search/?api=1&query=${q}`;
+  document.getElementById('as-opts').innerHTML =
+    `<button class="as-item" onclick="window.open('${googleUrl}');closeAS()">🗺️ Google Maps</button>` +
+    `<button class="as-item" onclick="openNaver('${safeName}',${lat},${lng});closeAS()">🟢 Naver Map（韓國在地）</button>` +
+    `<button class="as-item" onclick="window.open('${appleUrl}');closeAS()">🍎 Apple Maps</button>`;
+  asOverlay.classList.add('show');
+}
+function closeAS() { asOverlay.classList.remove('show'); }
+</script>
+</body>
+</html>
