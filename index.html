@@ -310,10 +310,34 @@ const DAYS = [
       {
         name: '明洞換錢 × 晚餐', lat: 37.5625, lng: 126.9870, type: 'spot', time: '18:00',
         desc: '酒店步行 10–12 分到明洞換錢街（大使館換錢所一帶），換完順便小吃晚餐',
-        detail: '匯率比機場好，換隔天花費即可\n多數換錢所營業到晚上 20:00 前後',
+        detail: '匯率比機場好，換隔天花費即可\n多數換錢所營業到晚上 20:00 前後\n18:00 後明洞街頭小吃攤全開：糖餅（호떡）、雞蛋麵包、草莓糖葫蘆——邊走邊吃',
         pay: { cash: 1 },
         metro: '① 建議直接走路去（10–12 分）：出酒店左轉往西，過明洞聖堂就到明洞商圈\n② 要搭車的話：忠武路站 4 號線 <span class="kw">당고개 방면</span> 1 站到 <span class="kw">명동역</span>，6 號出口出來就是換錢街\n③ 換錢所只收現金 — 台幣/港幣/美金直接換韓圜',
         gmap: encodeURIComponent('대사관환전 명동')
+      },
+      {
+        name: '明洞餃子 本店 명동교자', lat: 37.5629, lng: 126.9846, type: 'food', time: '—',
+        desc: '刀削麵＋蒸餃一人 ₩10,000–13,000，翻桌快；紅眼日晚餐正解（21:00 前入場）',
+        detail: '不用點菜技巧：kalguksu ＋ mandu 各一份就對',
+        pay: { cash: 1, card: 1 }, dianping: false,
+        xhsKeyword: '首爾 明洞餃子',
+        metro: '明洞商圈內步行即達：從換錢街往北走 3–5 分；Naver 搜 <span class="kw">명동교자</span>',
+        gmap: encodeURIComponent('명동교자 서울')
+      },
+      {
+        name: 'Olive Young 明洞中央店', lat: 37.5635, lng: 126.9840, type: 'spot', time: '—',
+        desc: '韓妝/面膜/防曬一次補齊（之後三天太陽不小），店內可退稅',
+        detail: '營業約 10:00–22:00，明洞最大間',
+        pay: { card: 1 },
+        xhsKeyword: '首爾 Olive Young 必買',
+        metro: '明洞主街中央，逛街順路就會經過',
+        gmap: encodeURIComponent('올리브영 명동중앙점')
+      },
+      {
+        name: '明洞聖堂 명동성당', lat: 37.5635, lng: 126.9867, type: 'spot', time: '—',
+        desc: '韓國天主教地標，夜間打燈的外觀值得繞去看一眼（免費）',
+        metro: '從換錢街往北走約 5 分；拍外觀即可，不用久留',
+        gmap: encodeURIComponent('명동성당')
       }
     ]
   },
@@ -382,6 +406,28 @@ const DAYS = [
         pay: { cash: 1, card: 1 }, dianping: false,
         metro: '【回酒店（帶戰利品）】① 首選叫車：上車貼 <span class="kw">롯데월드몰</span>、下車貼 <span class="kw">위코스테이 명동</span>（₩15,000–20,000，25–35 分）\n② 鐵人地鐵版：蠶室站 2 號線，站到<b>下一站是蠶室渡口（잠실나루）</b>的那一側，12 站到 을지로4가（約 30 分）',
         gmap: encodeURIComponent('잠실 롯데월드몰 식당가')
+      },
+      {
+        name: '首爾之眼 Seoul Sky', lat: 37.5124, lng: 127.1045, type: 'spot', time: '—',
+        desc: '樂天世界塔 117–123F 觀景台；水族館出來若體力還行，日落前半小時上去最好',
+        budget: '約 ₩31,000（線上預購較便宜）', detail: '門票含 117F–123F 觀景層\n日落時段排隊較長，線上買票省時',
+        xhsKeyword: '首爾 Seoul Sky 觀景台',
+        metro: '樂天世界塔 1F 塔廳：從商場往塔方向走，跟 <span class="kw">서울스카이 Seoul Sky</span> 指標到專用電梯',
+        gmap: encodeURIComponent('서울스카이 롯데월드타워')
+      },
+      {
+        name: '樂天免稅店 AVECUEL', lat: 37.5126, lng: 127.1030, type: 'spot', time: '—',
+        desc: '香水/彩妝免稅價，回程在仁川機場提貨——不用拎一整天',
+        detail: '約 10:30–20:00\n購買時指定回程日期+航班，T1 出境後提貨，記得帶護照',
+        pay: { card: 1 },
+        metro: '商場與塔之間的 AVECUEL 棟 8–11F，跟 <span class="kw">DUTY FREE</span> 指標搭電梯',
+        gmap: encodeURIComponent('롯데면세점 잠실')
+      },
+      {
+        name: '石村湖 석촌호수', lat: 37.5101, lng: 127.1041, type: 'spot', time: '—',
+        desc: '樂天塔倒影＋湖邊步道，繞半圈 20 分鐘（免費）',
+        metro: '商場 B1 東側出口（往樂天世界塔方向）出來就是湖邊',
+        gmap: encodeURIComponent('석촌호수 잠실')
       }
     ]
   },
@@ -441,6 +487,49 @@ const DAYS = [
         reserve: 'https://app.catchtable.co.kr/ct/shop/geondaesuchbulbujagobchang',
         metro: '【去程】Mouse Rabbit 出來往西南走回建大入口站方向，約 8–10 分；直接 Naver Map 搜 <span class="kw">건대숯불부자곱창</span> 導航最省事\n【回酒店】① 走回 <span class="kw">건대입구역</span>，站到 <span class="kw">성수·시청 방면</span> 那側（下一站是聖水 성수 就對了）\n② 搭 8 站：성수 → 뚝섬 → 한양대 → 왕십리 → 상왕십리 → 신당 → 동대문역사문화공원 → <span class="kw">을지로4가</span>（約 20 分）\n③ 出站走回酒店。太累叫 Uber：<span class="kw">건대입구역</span> → <span class="kw">위코스테이 명동</span>（₩13,000–16,000）',
         gmap: encodeURIComponent('건대숯불부자곱창')
+      },
+      {
+        name: 'ONION 聖水本店 어니언', lat: 37.5438, lng: 127.0472, type: 'drink', time: '—',
+        desc: '老工廠改建的麵包咖啡名店：馬鈴薯麵包、紅豆冰；打包麵包當 Day 4 早餐',
+        detail: '中午前麵包最齊；從 Haru 走 3 分鐘',
+        pay: { card: 1, cash: 1 }, dianping: false,
+        xhsKeyword: '首爾 ONION 聖水',
+        metro: 'Haru（성수역 앞）出來往西（往서울숲方向）走約 3 分；Naver 搜 <span class="kw">어니언 성수</span>',
+        gmap: encodeURIComponent('어니언 성수')
+      },
+      {
+        name: '大林倉庫 대릉창고', lat: 37.5433, lng: 127.0462, type: 'spot', time: '—',
+        desc: '聖水洞再生的起點：紅磚倉庫咖啡＋選物店＋小展覽',
+        xhsKeyword: '首爾 大林倉庫',
+        metro: 'ONION 往西南沿連武場街（연무장길）走約 5 分',
+        gmap: encodeURIComponent('대릉창고 성수')
+      },
+      {
+        name: 'ORZE 果子店 오르제과', lat: 37.5455, lng: 127.0488, type: 'drink', time: '—',
+        desc: '水果三明治、招牌派；週末下午熱門、賣完為止',
+        pay: { card: 1, cash: 1 }, dianping: false,
+        xhsKeyword: '首爾 水果三明治',
+        metro: 'Haru 旁的 ORZE 街（오르길）上坡走 2–3 分',
+        gmap: encodeURIComponent('오르제과점 성수')
+      },
+      {
+        name: '首爾林豬排 서울숲돈까스', lat: 37.5465, lng: 127.0418, type: 'food', time: '—',
+        desc: '厚切豬排名店，午餐想吃正餐選這間（小店，出發前 Naver 確認一下）',
+        budget: '₩12,000–15,000/人', pay: { cash: 1, card: 1 }, dianping: false,
+        metro: '首爾林南側（마장로 方向），從連武場街步行 5–8 分',
+        gmap: encodeURIComponent('서울숲돈까스')
+      },
+      {
+        name: '拍貼機 포토이즘 성수', lat: 37.5449, lng: 127.0495, type: 'spot', time: '—',
+        desc: 'K-pop 風大頭貼留念，全天候自助；聖水巷弄三步一間',
+        metro: '성수역 앞商圈內巷子隨處可見，這張卡 pin 在站前那台',
+        gmap: encodeURIComponent('포토이즘박스 성수')
+      },
+      {
+        name: 'SM 新總部外觀', lat: 37.5435, lng: 127.0400, type: 'spot', time: '—',
+        desc: 'KWANGYA 旁的玻璃大樓就是 SM 新總部，外觀拍照 5 分鐘',
+        metro: 'KWANGYA（서울숲역 4 號出口）出來往南走約 3 分',
+        gmap: encodeURIComponent('SM엔터테인먼트 성수')
       }
     ]
   },
@@ -649,7 +738,7 @@ function locCard(loc, dayIdx, i) {
     lnk += `<a href="${xhsHref}" onclick="return openXhs('${locKey.replace(/'/g,"\\'")}')" class="btn xhs">${xhsLabel}</a>`;
   }
   if(loc.reserve) lnk += `<a href="${loc.reserve}" target="_blank" class="btn rsv">📅 預約／排隊</a>`;
-  return `<div class="tl-item"><div class="tl-dot ${dot}"></div><div class="card" onclick="if(!event.target.closest('.btn,.links'))toggle('${uid}')"><div class="time">${loc.time!=='—'?loc.time:'備選'}</div><div class="name">${bdg} ${loc.name}</div><div class="desc">${loc.desc}</div>${loc.budget?'<div class="budget">'+loc.budget+'</div>':''}${payChips(loc.pay)}<div class="links">${lnk}</div>${loc.detail?'<div class="details" id="'+uid+'">'+loc.detail.replace(/\n/g,'<br>')+'</div>':''}</div></div>`;
+  return `<div class="tl-item"><div class="tl-dot ${dot}"></div><div class="card" onclick="if(!event.target.closest('.btn,.links'))toggle('${uid}')"><div class="time">${loc.time!=='—'?loc.time:'推薦'}</div><div class="name">${bdg} ${loc.name}</div><div class="desc">${loc.desc}</div>${loc.budget?'<div class="budget">'+loc.budget+'</div>':''}${payChips(loc.pay)}<div class="links">${lnk}</div>${loc.detail?'<div class="details" id="'+uid+'">'+loc.detail.replace(/\n/g,'<br>')+'</div>':''}</div></div>`;
 }
 
 function renderDay(idx) {
@@ -658,7 +747,7 @@ function renderDay(idx) {
   const alt = d.locations.filter(l=>l.time==='—');
   let h = `<div class="day-head"><h2>${d.title}</h2><p>${d.date}</p></div>`;
   if(main.length) { h += '<div class="section-head">行程</div><div class="timeline">'; main.forEach((l,i) => h += locCard(l, idx, i)); h += '</div>'; }
-  if(alt.length) { h += '<div class="section-head">備選</div><div class="timeline">'; alt.forEach((l,i) => h += locCard(l, idx, 'a'+i)); h += '</div>'; }
+  if(alt.length) { h += '<div class="section-head">🛍️ 商圈推薦（時間彈性）</div><div class="timeline">'; alt.forEach((l,i) => h += locCard(l, idx, 'a'+i)); h += '</div>'; }
   return h;
 }
 
